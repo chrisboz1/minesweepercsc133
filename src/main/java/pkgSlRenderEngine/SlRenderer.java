@@ -3,6 +3,8 @@ package pkgSlRenderEngine;
 import org.joml.Vector4f;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL;
+import pkgBackendEngine.SlMSBoard;
+import pkgDriver.SlSpot;
 import pkgSlRenderEngine.SlCamera;
 import pkgUtils.*;
 
@@ -22,6 +24,7 @@ import static org.lwjgl.opengl.GL20.*;
 import static pkgDriver.SlSpot.*;
 import pkgSlUtils.SlWindowManager;
 public class SlRenderer {
+    private SlMSBoard board;
     Random myRand = new Random();
     private SlWindowManager my_wm = new SlWindowManager();
     private SlShaderObject my_shader;
@@ -35,6 +38,12 @@ public class SlRenderer {
     private final float uMax = 1.0f;
     private FloatBuffer myFB;
     private float[] my_v = new float[NUM_POLY_ROWS*NUM_POLY_COLS*FPP*VPT];
+
+
+    public SlRenderer(SlMSBoard ms_board) {
+        board = ms_board;
+    }
+
     private void fill_vertex_array() {
         int index = 0;
         for (int row = 0; row < NUM_POLY_ROWS; row++) {
@@ -70,6 +79,10 @@ public class SlRenderer {
         myFB = BufferUtils.createFloatBuffer(my_v.length);
         myFB.put(my_v).flip();
     }
+
+    public void setBoard(SlMSBoard board) {
+        this.board = board;
+    }
     public void initRender() {
         fill_vertex_array();
         int vaoID = glGenVertexArrays();
@@ -89,17 +102,21 @@ public class SlRenderer {
     }
     public void renderBoard() {
         SlCamera camera = new SlCamera();
-        Vector4f COLOR_FACTOR = new Vector4f(0.8f, 0.0f, 0.2f, opacity);
+        Vector4f COLOR_FACTOR = new Vector4f(0.2f, 0.0f, 0.2f, opacity);
         initRender();
         glClearColor(0.0f, 0.0f, 0.0f, opacity);
         my_shader.loadMatrix4f("uProjMatrix", camera.getProjectionMatrix());
         my_shader.loadMatrix4f("uViewMatrix", camera.getViewMatrix());
         my_shader.loadVector4f("COLOR_FACTOR", COLOR_FACTOR);
+
+
+        int numRows = board.getRows();
+        int numCols = board.getCols();
         while (!my_wm.isGlfwWindowClosed()) {
             glfwPollEvents();
             glClear(GL_COLOR_BUFFER_BIT);
-            for (int row = 0; row < NUM_POLY_ROWS; row++) {
-                for (int col = 0; col < NUM_POLY_COLS; col++) {
+            for (int row = 0; row < numRows; row++) {
+                for (int col = 0; col < numCols; col++) {
                     renderTile(row, col);
                 }
             }
@@ -109,7 +126,22 @@ public class SlRenderer {
     private int getVAVIndex(int row, int col) {
         return (row * NUM_POLY_COLS + col) * VPT;
     }
+
+
     private void renderTile(int row, int col) {
+        SlSpot.CELL_TYPE cellType = board.getCellType(row, col); // Fetch the cell type
+        Vector4f COLOR_FACTOR;
+        if (cellType == SlSpot.CELL_TYPE.MINE) {
+            COLOR_FACTOR = new Vector4f(1.0f, 0.0f, 0.0f, opacity);  // Red color for MINE
+        } else if (cellType == SlSpot.CELL_TYPE.GOLD) {
+            COLOR_FACTOR = new Vector4f(1.0f, 0.84f, 0.0f, opacity);  // Gold color for GOLD
+        } else {
+            COLOR_FACTOR = new Vector4f(0.2f, 0.2f, 0.2f, opacity);  // Default color
+        }
+
+        // Load the COLOR_FACTOR to the shader
+        my_shader.loadVector4f("COLOR_FACTOR", COLOR_FACTOR);
+
         int va_offset = getVAVIndex(row, col); // vertex array offset of tile
         int[] rgVertexIndices = new int[] {va_offset, va_offset+1, va_offset+2,
                 va_offset, va_offset+2, va_offset+3};
@@ -120,6 +152,10 @@ public class SlRenderer {
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, VertexIndicesBuffer, GL_STATIC_DRAW);
         glDrawElements(GL_TRIANGLES, rgVertexIndices.length, GL_UNSIGNED_INT, 0);
     }
+
+
+
+
     public void initOpenGL(pkgSlUtils.SlWindowManager window) throws IOException {
         my_wm = window;
         my_wm.updateContextToThis();

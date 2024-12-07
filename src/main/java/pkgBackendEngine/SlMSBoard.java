@@ -26,18 +26,14 @@ public class SlMSBoard {
                 ms_board[i][j] = new CellData(SlSpot.CELL_TYPE.GOLD, SlSpot.CELL_STATUS.NOT_EXPOSED);
             }
         }
-        // Step 2: Create a list of linear indices
-        ArrayList<Integer> my_list = new ArrayList<>();
+
+        ArrayList<Integer> my_list = new ArrayList<>(); //do this to make it 1d from 2d.
         for (int row = 0; row < ROWS; row++) {
             for (int col = 0; col < COLS; col++) {
-                my_list.add(row * COLS + col); // Linear index = row * COLS + col
+                my_list.add(row * COLS + col);
             }
         }
-
-        // Step 3: Shuffle the list
         Collections.shuffle(my_list);
-
-        // Step 4: Place mines in the board
         for (int i = 0; i < NUM_MINES; i++) {
             int linearIndex = my_list.get(i);
             int row = linearIndex / COLS; // Compute row from linear index
@@ -47,7 +43,12 @@ public class SlMSBoard {
         setNextNearestPoints();
     }
 
-    // Debugging method to print the board
+    public int getRows() {
+        return ROWS;
+    }
+    public int getCols() {
+        return COLS;
+    }
     public void printBoard() {
         for (int i = 0; i < ROWS; i++) {
             for (int j = 0; j < COLS; j++) {
@@ -63,26 +64,20 @@ public class SlMSBoard {
     public void setNextNearestPoints() {
         for (int row = 0; row < ROWS; row++) {
             for (int col = 0; col < COLS; col++) {
-                // If the cell is a mine, set its score to 0 and skip further processing
                 if (ms_board[row][col].getCellType() == SlSpot.CELL_TYPE.MINE) {
                     ms_board[row][col].cell_score = 0;
                     continue;
                 }
-
-                // Otherwise, calculate the score based on neighboring mines and gold cells
                 int numMines = 0;
                 int numGold = 0;
 
-                // Check all 8 neighbors (with wraparound)
                 for (int i = -1; i <= 1; i++) {
                     for (int j = -1; j <= 1; j++) {
-                        if (i == 0 && j == 0) continue; // Skip the cell itself
+                        if (i == 0 && j == 0) continue;
 
-                        // Wrap around the grid using modulo arithmetic
                         int neighborRow = (row + i + ROWS) % ROWS;
                         int neighborCol = (col + j + COLS) % COLS;
 
-                        // Check the type of the neighbor
                         if (ms_board[neighborRow][neighborCol].getCellType() == SlSpot.CELL_TYPE.MINE) {
                             numMines++;
                         } else {
@@ -90,13 +85,18 @@ public class SlMSBoard {
                         }
                     }
                 }
-
-                // Calculate and assign the score:
-                // 10 points per mine, 5 points per gold cell
                 ms_board[row][col].cell_score = (numMines * 10) + (numGold * 5);
             }
         }
     }
+    public SlSpot.CELL_TYPE getCellType(int row, int col) {
+        if (row >= 0 && row < ROWS && col >= 0 && col < COLS) {
+            return ms_board[row][col].getCellType();
+        } else {
+            throw new IndexOutOfBoundsException("Row or column index is out of bounds.");
+        }
+    }
+
 
 
 
@@ -113,6 +113,9 @@ public class SlMSBoard {
             }
             System.out.println();
         }
+    }
+    public CellData[][] getBoard() {
+        return ms_board;
     }
 
 
