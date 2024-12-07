@@ -44,6 +44,7 @@ public class SlMSBoard {
             int col = linearIndex % COLS; // Compute column from linear index
             ms_board[row][col].setCellType(SlSpot.CELL_TYPE.MINE);
         }
+        setNextNearestPoints();
     }
 
     // Debugging method to print the board
@@ -59,12 +60,60 @@ public class SlMSBoard {
             System.out.println();
         }
     }
+    public void setNextNearestPoints() {
+        for (int row = 0; row < ROWS; row++) {
+            for (int col = 0; col < COLS; col++) {
+                // If the cell is a mine, set its score to 0 and skip further processing
+                if (ms_board[row][col].getCellType() == SlSpot.CELL_TYPE.MINE) {
+                    ms_board[row][col].cell_score = 0;
+                    continue;
+                }
+
+                // Otherwise, calculate the score based on neighboring mines and gold cells
+                int numMines = 0;
+                int numGold = 0;
+
+                // Check all 8 neighbors (with wraparound)
+                for (int i = -1; i <= 1; i++) {
+                    for (int j = -1; j <= 1; j++) {
+                        if (i == 0 && j == 0) continue; // Skip the cell itself
+
+                        // Wrap around the grid using modulo arithmetic
+                        int neighborRow = (row + i + ROWS) % ROWS;
+                        int neighborCol = (col + j + COLS) % COLS;
+
+                        // Check the type of the neighbor
+                        if (ms_board[neighborRow][neighborCol].getCellType() == SlSpot.CELL_TYPE.MINE) {
+                            numMines++;
+                        } else {
+                            numGold++;
+                        }
+                    }
+                }
+
+                // Calculate and assign the score:
+                // 10 points per mine, 5 points per gold cell
+                ms_board[row][col].cell_score = (numMines * 10) + (numGold * 5);
+            }
+        }
+    }
+
+
+
+
 
 
     public boolean isGameActive() {
         return gameActive;
     }
-    private void printCellScores() {}
+    public void printCellScores() {
+        for (int i = 0; i < ROWS; i++) {
+            for (int j = 0; j < COLS; j++) {
+                System.out.print(ms_board[i][j].cell_score + " ");
+            }
+            System.out.println();
+        }
+    }
 
 
 
@@ -85,6 +134,10 @@ public class SlMSBoard {
 
         public void setCellType(SlSpot.CELL_TYPE type) {
             this.type = type;
+        }
+
+        public void setCellStatus(int score) {
+            this.cell_score = score;
         }
     }
 }

@@ -14,6 +14,8 @@ public class Driver {
     public static void main(String[] my_args) throws IOException {
         SlMSBoard board = new SlMSBoard(3, 1, 3);
         board.printBoard();
+        System.out.println("");
+        board.printCellScores();
 
 //        SlRenderer renderEngine = new SlRenderer();
 //        pkgSlUtils.SlWindowManager.get().initGLFWWindow(WIN_WIDTH, WIN_HEIGHT, WINDOW_TITLE);
