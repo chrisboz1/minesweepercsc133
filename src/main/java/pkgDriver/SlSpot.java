@@ -12,4 +12,8 @@ public class SlSpot {
    public static final float FRUSTUM_LEFT = 0.0f,   FRUSTUM_RIGHT = (float)WIN_WIDTH,
            FRUSTUM_BOTTOM = 0.0f, FRUSTUM_TOP = (float)WIN_HEIGHT,
            Z_NEAR = 0.0f, Z_FAR = 100.0f;
+   public enum CELL_STATUS {NOT_EXPOSED, EXPOSED}
+   public enum CELL_TYPE {MINE, GOLD}
+
+
 }
