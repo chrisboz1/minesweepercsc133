@@ -16,4 +16,5 @@ public class SlSpot {
    public enum CELL_TYPE {MINE, GOLD}
 
 
+
 }
