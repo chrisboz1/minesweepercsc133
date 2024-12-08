@@ -1,17 +1,16 @@
-package pkgSlRenderEngine;
+package pkgUtils;
 
 
-import static org.lwjgl.glfw.GLFW.GLFW_PRESS;
-import static org.lwjgl.glfw.GLFW.GLFW_RELEASE;
+import static org.lwjgl.glfw.GLFW.*;
 
 public class XYMouseListener {
-    public static double mouseX;
-    public static double mouseY;
     private static XYMouseListener my_instance;
     private double scrollX, scrollY;
     double xPos, yPos, lastY, lastX;
     private boolean mouseButtonPressed[] = new boolean[3];
     private boolean isDragging;
+    public static double mouseX;
+    public static double mouseY;
 
     public XYMouseListener() {
         this.scrollX = 0.0f;
@@ -38,6 +37,10 @@ public class XYMouseListener {
         get().isDragging = get().mouseButtonPressed[0] ||
                 get().mouseButtonPressed[1] ||
                 get().mouseButtonPressed[2];
+
+        // Store the mouse position
+        mouseX = pos_x;
+        mouseY = pos_y;
     }
 
     public static void mouseButtonCallback(long my_window, int button, int action, int mods) {
@@ -104,6 +107,40 @@ public class XYMouseListener {
             return false;
         }
     }
+    public static void setMouseButtonCallback(long window) {
+        glfwSetMouseButtonCallback(window, (windowHandle, button, action, mods) -> {
+            // Query current mouse position from GLFW when button is pressed/released
+            double[] xPos = new double[1];
+            double[] yPos = new double[1];
+            glfwGetCursorPos(windowHandle, xPos, yPos);  // Get mouse position in window space
 
+            XYMouseListener.mouseX = xPos[0];
+            XYMouseListener.mouseY = yPos[0];
+            if (action == GLFW_PRESS) {
+                // Mouse button pressed
+                System.out.println("Button " + button + " pressed at (" + xPos[0] + ", " + yPos[0] + ")");
+                mouseX = xPos[0];
+                mouseY = yPos[0];
+            } else if (action == GLFW_RELEASE) {
+                // Mouse button released
+                System.out.println("Button " + button + " released");
+            }
+        });
+    }
+    public static double getMouseX() {
+        return mouseX;
+    }
+
+    public static double getMouseY() {
+        return mouseY;
+    }
+
+
+    public static void setCursorPosCallback(long window) {
+        glfwSetCursorPosCallback(window, (windowHandle, xpos, ypos) -> {
+            get().xPos = xpos;  // Update the x-position in XYMouseListener
+            get().yPos = ypos;  // Update the y-position in XYMouseListener
+        });
+    }
 
 }

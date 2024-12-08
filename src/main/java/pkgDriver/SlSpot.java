@@ -2,7 +2,7 @@ package pkgDriver;
 
 public class SlSpot {
    public static String WINDOW_TITLE = "CSC 133: MineSweeper";
-   public static int POLY_OFFSET = 10, POLYGON_LENGTH = 60, POLY_PADDING = 20;
+   public static int POLY_OFFSET = 10, POLYGON_LENGTH = 40, POLY_PADDING = 20;
    public static int NUM_POLY_ROWS = 9, NUM_POLY_COLS = 7;
 
    public static int WIN_WIDTH =

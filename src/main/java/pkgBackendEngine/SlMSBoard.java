@@ -96,6 +96,16 @@ public class SlMSBoard {
             throw new IndexOutOfBoundsException("Row or column index is out of bounds.");
         }
     }
+    public SlSpot.CELL_STATUS getCellStatus(int row, int col) {
+        if (row >= 0 && row < ROWS && col >= 0 && col < COLS) {
+            return ms_board[row][col].getCellStatus();
+        } else {
+            throw new IndexOutOfBoundsException("Row or column index is out of bounds.");
+        }
+    }
+    public int getScore(int row, int col) {
+        return ms_board[row][col].cell_score;
+    }
 
 
 
@@ -133,6 +143,9 @@ public class SlMSBoard {
 
         public SlSpot.CELL_TYPE getCellType() {
             return type;
+        }
+        public SlSpot.CELL_STATUS getCellStatus() {
+            return status;
         }
 
         public void setCellType(SlSpot.CELL_TYPE type) {
